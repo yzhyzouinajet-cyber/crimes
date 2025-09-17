@@ -3,76 +3,142 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Faux téléphone — simulation d'appel</title>
+<title>Téléphone factice</title>
 <style>
-  :root{--bg:#eef4fb;--screen:#f7f9fb;--accent:#007aff;--muted:#6b7280;--error:#c92a2a;}
-  html,body{height:100%;margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial;background:var(--bg);color:#111}
-  .wrap{max-width:420px;margin:18px auto;padding:12px;box-sizing:border-box}
-  .phone{width:100%;background:linear-gradient(180deg,var(--screen),#eef3f8);border-radius:18px;box-shadow:0 10px 28px rgba(0,0,0,0.15);overflow:hidden;display:flex;flex-direction:column;padding:14px}
-  .display{width:100%;background:linear-gradient(180deg,#fff,#f3f6fb);padding:14px;border-radius:12px;text-align:center;min-height:72px;position:relative}
-  .typed{font-size:22px;letter-spacing:2px;font-weight:700}
-  .hint{font-size:13px;color:var(--muted);margin-top:6px}
-  .error-banner{position:absolute;left:12px;right:12px;bottom:8px;background:rgba(201,42,42,0.06);color:var(--error);border:1px solid rgba(201,42,42,0.12);padding:8px 10px;border-radius:8px;font-weight:700;display:none}
-  .keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}
-  .key{background:#fff;border-radius:12px;padding:14px 0;text-align:center;font-size:18px;font-weight:700;cursor:pointer;user-select:none;box-shadow:0 6px 14px rgba(2,6,23,0.06)}
-  .controls{display:flex;gap:10px;margin-top:12px}
-  .btn{flex:1;padding:12px;border-radius:12px;border:0;cursor:pointer;font-weight:800}
-  .btn.call{background:linear-gradient(180deg,#10b981,#059669);color:#fff}
-  .btn.back{background:#fff;border:1px solid rgba(2,6,23,0.06)}
-  .btn.clear{background:#ff3b30;color:#fff}
-  .overlay{position:fixed;inset:0;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(2,6,23,0.35);backdrop-filter:blur(2px);box-sizing:border-box}
-  .voicemail{width:92%;max-width:360px;background:#fff;border-radius:14px;padding:18px;text-align:center;box-shadow:0 18px 40px rgba(2,6,23,0.25)}
-  .code-display{font-size:20px;letter-spacing:2px;font-weight:800;margin-bottom:10px}
-  .pad{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
-  .vm-key{width:52px;height:44px;border-radius:8px;background:#f2f4f8;display:flex;align-items:center;justify-content:center;font-weight:800;cursor:pointer}
-  .vm-actions{display:flex;gap:10px;margin-top:12px}
-  .vm-actions button{flex:1;padding:10px;border-radius:10px;border:0;font-weight:700;cursor:pointer}
-  .vm-actions .ok{background:var(--accent);color:#fff}
-  .vm-actions .cancel{background:#eee}
-  .error{color:var(--error);margin-top:8px;display:none}
-  .success{color:#15803d;margin-top:8px;display:none}
-  .link-btn{display:inline-block;margin-top:12px;padding:8px 12px;border-radius:8px;background:#111;color:#fff;text-decoration:none}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Arial;
+    background:#eef4fb;
+    margin:0; padding:20px;
+    display:flex; justify-content:center; align-items:center;
+    height:100vh;
+    color:#111;
+  }
+  .phone{
+    width:180px; /* 📏 largeur réduite */
+    background:#fff;
+    border-radius:14px;
+    box-shadow:0 4px 14px rgba(0,0,0,0.15);
+    padding:10px;
+  }
+  .display{
+    background:#f7f9fb;
+    border-radius:10px;
+    padding:8px;
+    text-align:center;
+    min-height:40px;
+    position:relative;
+    margin-bottom:8px;
+  }
+  .typed{font-size:16px;font-weight:700;letter-spacing:2px}
+  .error-banner{display:none;color:#c92a2a;font-weight:700;margin-top:4px;font-size:12px}
+  .keypad{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:6px;
+    margin-top:6px;
+  }
+  .key{
+    background:#fff;
+    border-radius:8px;
+    padding:8px 0;
+    text-align:center;
+    font-size:14px;
+    font-weight:700;
+    cursor:pointer;
+    box-shadow:0 2px 4px rgba(0,0,0,0.05);
+  }
+  .controls{
+    display:flex;
+    gap:4px;
+    margin-top:8px;
+  }
+  .btn{
+    flex:1;
+    padding:6px;
+    border-radius:8px;
+    border:0;
+    cursor:pointer;
+    font-size:11px;
+    font-weight:700;
+  }
+  .btn.call{background:#10b981;color:#fff}
+  .btn.back{background:#f1f1f1}
+  .btn.clear{background:#ef4444;color:#fff}
+  /* overlay */
+  .overlay{
+    position:fixed; inset:0;
+    display:none;
+    justify-content:center; align-items:center;
+    background:rgba(0,0,0,0.4);
+  }
+  .voicemail{
+    background:#fff;
+    border-radius:10px;
+    padding:12px;
+    width:180px;
+    text-align:center;
+  }
+  .voicemail h3{margin:0 0 6px 0;font-size:14px}
+  .voicemail p{margin:0 0 8px 0;font-size:12px;color:#555}
+  .code-display{font-size:16px;font-weight:800;margin:6px 0}
+  .pad{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:6px;
+    justify-items:center;
+  }
+  .vm-key{
+    width:38px;height:32px;
+    background:#f2f4f8;
+    border-radius:6px;
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;font-weight:700;font-size:14px;
+  }
+  .vm-actions{margin-top:8px;display:flex;gap:6px}
+  .vm-actions button{
+    flex:1;padding:6px;border-radius:6px;border:0;
+    font-size:11px;font-weight:700;cursor:pointer
+  }
+  .ok{background:#007aff;color:#fff}
+  .cancel{background:#ddd}
+  .error{color:#c92a2a;font-size:12px;display:none;margin-top:6px}
+  .success{color:#15803d;font-size:12px;display:none;margin-top:6px}
+  #openLink{
+    display:none;margin-top:8px;font-size:12px;
+    color:#007aff;font-weight:bold;text-decoration:none;
+  }
 </style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="phone">
-      <div class="display" aria-live="polite">
-        <div class="typed" id="typedNumber"> </div>
-        <div class="hint">Composez le numéro puis appuyez sur <strong>Appeler</strong></div>
-        <div class="error-banner" id="numError">Erreur — numéro inconnu</div>
-      </div>
-
-      <div class="keypad" id="keypad">
-        <div class="key" data-key="1">1</div>
-        <div class="key" data-key="2">2</div>
-        <div class="key" data-key="3">3</div>
-        <div class="key" data-key="4">4</div>
-        <div class="key" data-key="5">5</div>
-        <div class="key" data-key="6">6</div>
-        <div class="key" data-key="7">7</div>
-        <div class="key" data-key="8">8</div>
-        <div class="key" data-key="9">9</div>
-        <div class="key" data-key="*">*</div>
-        <div class="key" data-key="0">0</div>
-        <div class="key" data-key="#">#</div>
-      </div>
-
-      <div class="controls">
-        <button class="btn back" id="backBtn">← Effacer</button>
-        <button class="btn call" id="callBtn">Appeler</button>
-        <button class="btn clear" id="clearBtn">Effacer tout</button>
-      </div>
-
-      <div style="margin-top:10px;font-size:12px;color:var(--muted)">Le téléphone est factice — l'appel est simulé.</div>
+  <div class="phone">
+    <div class="display">
+      <div class="typed" id="typedNumber"></div>
+      <div class="error-banner" id="numError">Numéro inconnu</div>
+    </div>
+    <div class="keypad" id="keypad">
+      <div class="key" data-key="1">1</div>
+      <div class="key" data-key="2">2</div>
+      <div class="key" data-key="3">3</div>
+      <div class="key" data-key="4">4</div>
+      <div class="key" data-key="5">5</div>
+      <div class="key" data-key="6">6</div>
+      <div class="key" data-key="7">7</div>
+      <div class="key" data-key="8">8</div>
+      <div class="key" data-key="9">9</div>
+      <div class="key" data-key="0">0</div>
+    </div>
+    <div class="controls">
+      <button class="btn back" id="backBtn">←</button>
+      <button class="btn call" id="callBtn">Appeler</button>
+      <button class="btn clear" id="clearBtn">C</button>
     </div>
   </div>
 
   <div class="overlay" id="overlay">
-    <div class="voicemail" role="dialog" aria-modal="true">
-      <h2>Répondeur automatique</h2>
-      <p>Veuillez saisir le code secret à 4 chiffres.</p>
-      <div class="code-display" id="codeDisplay">— — — —</div>
+    <div class="voicemail">
+      <h3>Répondeur</h3>
+      <p>Entrez le code secret</p>
+      <div class="code-display" id="codeDisplay">••••</div>
       <div class="pad" id="vmPad">
         <div class="vm-key" data-key="1">1</div>
         <div class="vm-key" data-key="2">2</div>
@@ -85,29 +151,22 @@
         <div class="vm-key" data-key="9">9</div>
         <div class="vm-key" data-key="0">0</div>
       </div>
-
       <div class="vm-actions">
+        <!-- ✅ type="button" pour éviter le rechargement -->
         <button type="button" class="ok" id="vmOk">Valider</button>
-        <button class="cancel" id="vmCancel">Raccrocher</button>
+        <button type="button" class="cancel" id="vmCancel">Raccrocher</button>
       </div>
-
-      <div class="error" id="vmError">Code incorrect.</div>
-      <div class="success" id="vmSuccess">Code correct — accès autorisé.</div>
-
-      <!-- bouton pour ouvrir le lien manuellement -->
-      <a id="openLink" class="link-btn" href="#" target="_blank" rel="noopener">Accéder au dossier</a>
-      <div style="margin-top:8px;font-size:12px;color:var(--muted)">Si la page Google est privée, le MJ/admin doit l'ouvrir depuis son compte.</div>
+      <div class="error" id="vmError">Code incorrect</div>
+      <div class="success" id="vmSuccess">Accès autorisé</div>
+      <a id="openLink" href="https://sites.google.com/" target="_blank">Accéder au dossier</a>
     </div>
   </div>
 
 <script>
 (function(){
-  // CONFIG
-  const TARGET_PHONE = '0755221314';
-  const CORRECT = '1798';
-  const REMOTE_LINK = 'https://sites.google.com/d/1zvWlBSykvZvoG18Gjn02ghG2BxkD2vyK/p/1-FRJK-HhCT25s0XLjAbXvYtJ7KznYyb_/edit';
+  const TARGET_PHONE = '0755221314'; // numéro attendu
+  const CORRECT = '1798';            // code secret
 
-  // DOM
   const typedEl = document.getElementById('typedNumber');
   const keypad = document.getElementById('keypad');
   const backBtn = document.getElementById('backBtn');
@@ -120,93 +179,65 @@
   const vmCancel = document.getElementById('vmCancel');
   const vmError = document.getElementById('vmError');
   const vmSuccess = document.getElementById('vmSuccess');
-  const numErrorBanner = document.getElementById('numError');
   const openLink = document.getElementById('openLink');
-
-  // set link href
-  openLink.href = REMOTE_LINK;
+  const numError = document.getElementById('numError');
 
   let typed = '';
   let vmCode = '';
 
-  function renderTyped(){ typedEl.textContent = typed || ' '; }
-  function updateCodeDisplay(){ codeDisplay.textContent = vmCode.padEnd(4,'•').split('').join(' '); }
+  function renderTyped(){ typedEl.textContent = typed; }
+  function updateCodeDisplay(){
+    codeDisplay.textContent = vmCode.padEnd(4,'•').split('').map(c => c==='•'?'•':'●').join(' ');
+  }
 
-  renderTyped();
-  updateCodeDisplay();
-
-  // keypad main
-  keypad.addEventListener('click', (e) => {
-    const k = e.target.closest('.key');
-    if(!k) return;
-    const v = k.dataset.key;
-    if(!v) return;
-    typed += v;
-    renderTyped();
+  keypad.addEventListener('click', e=>{
+    const k = e.target.closest('.key'); if(!k) return;
+    typed += k.dataset.key; renderTyped();
   });
 
   backBtn.addEventListener('click', ()=>{ typed = typed.slice(0,-1); renderTyped(); });
   clearBtn.addEventListener('click', ()=>{ typed = ''; renderTyped(); });
 
-  callBtn.addEventListener('click', ()=> {
+  callBtn.addEventListener('click', ()=>{
     const normalized = typed.replace(/\D/g,'');
     const targetNorm = TARGET_PHONE.replace(/\D/g,'');
-    if(normalized === targetNorm && normalized.length>0){
+    if(normalized === targetNorm){
       vmCode = '';
       updateCodeDisplay();
       vmError.style.display = 'none';
       vmSuccess.style.display = 'none';
+      openLink.style.display = 'none';
       overlay.style.display = 'flex';
     } else {
-      // show error
-      const el = document.querySelector('.display .error-banner');
-      if(el){ el.style.display = 'block'; setTimeout(()=>{ el.style.display='none'; },1800); }
+      numError.style.display = 'block';
+      setTimeout(()=>numError.style.display='none',2000);
     }
   });
 
-  // vm keypad
-  vmPad.addEventListener('click', (e) => {
-    const k = e.target.closest('.vm-key');
-    if(!k) return;
-    const v = k.dataset.key;
-    if(!v) return;
-    if(vmCode.length < 4){ vmCode += v; updateCodeDisplay(); }
+  vmPad.addEventListener('click', e=>{
+    const k = e.target.closest('.vm-key'); if(!k) return;
+    if(vmCode.length < 4){ vmCode += k.dataset.key; updateCodeDisplay(); }
   });
 
-  vmOk.addEventListener('click', ()=> {
+  vmOk.addEventListener('click', e=>{
+    e.preventDefault(); // ✅ empêche toute action par défaut
     if(vmCode === CORRECT){
       vmError.style.display = 'none';
       vmSuccess.style.display = 'block';
-      // reveal the manual link (already set) — do NOT auto-redirect
-      openLink.style.display = 'inline-block';
-      // optionally close overlay after a moment (comment out if you prefer it stays)
-      setTimeout(()=>{ overlay.style.display = 'none'; }, 900);
+      openLink.style.display = 'block';
     } else {
-      vmError.textContent = "Code incorrect.";
       vmError.style.display = 'block';
       vmSuccess.style.display = 'none';
+      openLink.style.display = 'none';
       vmCode = '';
       updateCodeDisplay();
     }
   });
 
-  vmCancel.addEventListener('click', ()=>{ overlay.style.display = 'none'; });
+  vmCancel.addEventListener('click', ()=> overlay.style.display='none');
 
-  // keyboard support
-  document.addEventListener('keydown', (e) => {
-    if(overlay.style.display === 'flex'){
-      if(e.key >= '0' && e.key <= '9'){ if(vmCode.length < 4){ vmCode += e.key; updateCodeDisplay(); } }
-      else if(e.key === 'Backspace'){ vmCode = vmCode.slice(0,-1); updateCodeDisplay(); }
-      else if(e.key === 'Enter'){ vmOk.click(); }
-      else if(e.key === 'Escape'){ overlay.style.display = 'none'; }
-      e.preventDefault();
-    } else {
-      if(e.key >= '0' && e.key <= '9'){ typed += e.key; renderTyped(); e.preventDefault(); }
-      else if(e.key === 'Backspace'){ typed = typed.slice(0,-1); renderTyped(); e.preventDefault(); }
-      else if(e.key === 'Enter'){ callBtn.click(); e.preventDefault(); }
-    }
-  });
-
+  renderTyped();
+  updateCodeDisplay();
 })();
 </script>
 </body>
