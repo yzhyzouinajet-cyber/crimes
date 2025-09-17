@@ -6,15 +6,19 @@
 <title>Faux téléphone — simulation d'appel</title>
 <style>
   body {
-    font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Arial;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial;
     background: #eef4fb;
     margin: 0;
     padding: 20px;
     color: #111;
+    display:flex;
+    justify-content:center;
+    align-items:flex-start;
+    min-height:100vh;
   }
   .phone {
     width: 300px; /* largeur réaliste */
-    margin: auto;
+    margin-top:30px;
     background: #fff;
     border-radius: 18px;
     box-shadow: 0 6px 18px rgba(0,0,0,0.15);
@@ -54,6 +58,7 @@
     font-weight: 700;
     cursor: pointer;
     box-shadow: 0 4px 8px rgba(0,0,0,0.06);
+    user-select:none;
   }
   .controls {
     display: flex;
@@ -80,9 +85,10 @@
     align-items: center;
     justify-content: center;
     background: rgba(0,0,0,0.4);
+    z-index: 9999;
   }
   .voicemail {
-    width: 260px;
+    width: 280px;
     background: white;
     border-radius: 14px;
     padding: 18px;
@@ -96,7 +102,7 @@
   .vm-key {
     width:52px;height:44px;border-radius:8px;
     background:#f2f4f8;display:flex;align-items:center;justify-content:center;
-    font-weight:800;cursor:pointer;
+    font-weight:800;cursor:pointer;user-select:none;
   }
   .vm-actions {display:flex;gap:10px;margin-top:8px}
   .vm-actions button {
@@ -111,7 +117,7 @@
     margin-top:12px;
     background:#10b981;
     color:white;
-    padding:10px;
+    padding:10px 14px;
     border-radius:10px;
     text-decoration:none;
     font-weight:700;
@@ -120,13 +126,13 @@
 </style>
 </head>
 <body>
-  <div class="phone">
-    <div class="display">
-      <div class="typed" id="typedNumber"></div>
-      <div class="error-banner" id="numError">Erreur — numéro inconnu</div>
+  <div class="phone" role="application" aria-label="Téléphone factice">
+    <div class="display" aria-live="polite">
+      <div class="typed" id="typedNumber" aria-atomic="true"></div>
+      <div class="error-banner" id="numError" role="status">Erreur — numéro inconnu</div>
     </div>
 
-    <div class="keypad" id="keypad">
+    <div class="keypad" id="keypad" role="group" aria-label="Clavier téléphonique">
       <div class="key" data-key="1">1</div>
       <div class="key" data-key="2">2</div>
       <div class="key" data-key="3">3</div>
@@ -139,20 +145,20 @@
       <div class="key" data-key="0">0</div>
     </div>
 
-    <div class="controls">
-      <button class="btn back" id="backBtn" type="button">← Effacer</button>
-      <button class="btn call" id="callBtn" type="button">Appeler</button>
-      <button class="btn clear" id="clearBtn" type="button">Effacer tout</button>
+    <div class="controls" role="toolbar" aria-label="Contrôles">
+      <button class="btn back" id="backBtn" type="button" aria-label="Effacer">← Effacer</button>
+      <button class="btn call" id="callBtn" type="button" aria-label="Appeler">Appeler</button>
+      <button class="btn clear" id="clearBtn" type="button" aria-label="Effacer tout">Effacer tout</button>
     </div>
   </div>
 
   <!-- Overlay répondeur -->
-  <div class="overlay" id="overlay">
-    <div class="voicemail">
+  <div class="overlay" id="overlay" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="voicemail" role="document">
       <h2>Répondeur automatique</h2>
       <p>Entrez le code secret (4 chiffres)</p>
       <div class="code-display" id="codeDisplay">----</div>
-      <div class="pad" id="vmPad">
+      <div class="pad" id="vmPad" role="group" aria-label="Clavier du répondeur">
         <div class="vm-key" data-key="1">1</div>
         <div class="vm-key" data-key="2">2</div>
         <div class="vm-key" data-key="3">3</div>
@@ -168,9 +174,11 @@
         <button type="button" class="ok" id="vmOk">Valider</button>
         <button type="button" class="cancel" id="vmCancel">Raccrocher</button>
       </div>
-      <div class="error" id="vmError">Code incorrect.</div>
-      <div class="success" id="vmSuccess">Code correct.</div>
-      <a href="https://sites.google.com/" id="accessBtn">Accéder au dossier</a>
+      <div class="error" id="vmError" role="status">Code incorrect.</div>
+      <div class="success" id="vmSuccess" role="status">Code correct.</div>
+
+      <!-- === TON LIEN PUBLIÉ (remplacé avec ton URL) === -->
+      <a href="https://sites.google.com/view/scenesdecrimes/accueil/coffre-num%C3%A9rique/pieces-a-conviction-n1" id="accessBtn" target="_blank" rel="noopener noreferrer">Accéder au dossier</a>
     </div>
   </div>
 
@@ -178,6 +186,7 @@
 (function(){
   const TARGET_PHONE = '0755221314'; // numéro attendu
   const CORRECT = '1798'; // code secret
+
   const typedEl = document.getElementById('typedNumber');
   const numError = document.getElementById('numError');
   const keypad = document.getElementById('keypad');
@@ -209,13 +218,17 @@
   clearBtn.addEventListener('click', ()=>{ typed = ''; renderTyped(); });
 
   callBtn.addEventListener('click', ()=>{
-    if(typed === TARGET_PHONE){
+    const normalized = typed.replace(/\D/g,'');
+    const targetNorm = TARGET_PHONE.replace(/\D/g,'');
+    if(normalized === targetNorm && normalized.length>0){
       overlay.style.display = 'flex';
+      overlay.setAttribute('aria-hidden','false');
       vmCode = '';
       updateCode();
       vmError.style.display = 'none';
       vmSuccess.style.display = 'none';
       accessBtn.style.display = 'none';
+      // focus trap simple: listen for keys to feed vm while overlay is open
     } else {
       numError.style.display = 'block';
       setTimeout(()=> numError.style.display='none',2000);
@@ -232,11 +245,12 @@
   });
 
   function updateCode(){
+    // affiche traits s'il n'y a pas de chiffres
     codeDisplay.textContent = vmCode.padEnd(4,'-');
   }
 
   vmOk.addEventListener('click', (e)=>{
-    e.preventDefault(); // empêche le rechargement
+    e.preventDefault(); // empêche rechargement
     if(vmCode === CORRECT){
       vmError.style.display = 'none';
       vmSuccess.style.display = 'block';
@@ -244,13 +258,32 @@
     } else {
       vmError.style.display = 'block';
       vmSuccess.style.display = 'none';
+      accessBtn.style.display = 'none';
       vmCode = '';
       updateCode();
     }
   });
 
-  vmCancel.addEventListener('click', ()=>{ overlay.style.display = 'none'; });
+  vmCancel.addEventListener('click', ()=>{ overlay.style.display = 'none'; overlay.setAttribute('aria-hidden','true'); });
 
+  // support clavier général (taper chiffres pour composer / pour le VM quand overlay visible)
+  document.addEventListener('keydown', (e) => {
+    if(overlay.style.display === 'flex'){
+      if(e.key >= '0' && e.key <= '9'){ if(vmCode.length < 4){ vmCode += e.key; updateCode(); } }
+      else if(e.key === 'Backspace'){ vmCode = vmCode.slice(0,-1); updateCode(); }
+      else if(e.key === 'Enter'){ vmOk.click(); }
+      else if(e.key === 'Escape'){ vmCancel.click(); }
+      e.preventDefault();
+    } else {
+      if(e.key >= '0' && e.key <= '9'){ typed += e.key; renderTyped(); e.preventDefault(); }
+      else if(e.key === 'Backspace'){ typed = typed.slice(0,-1); renderTyped(); e.preventDefault(); }
+      else if(e.key === 'Enter'){ callBtn.click(); e.preventDefault(); }
+    }
+  });
+
+  // initial render
+  renderTyped();
+  updateCode();
 })();
 </script>
 </body>
