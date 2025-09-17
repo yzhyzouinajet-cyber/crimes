@@ -3,109 +3,119 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Téléphone factice</title>
+<title>Faux téléphone — simulation d'appel</title>
 <style>
-  body{
-    font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Arial;
-    background:#eef4fb;
-    margin:0; padding:20px;
-    display:flex; justify-content:center; align-items:center;
-    height:78%;
-    color:#111;
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Arial;
+    background: #eef4fb;
+    margin: 0;
+    padding: 20px;
+    color: #111;
   }
-  .phone{
-    width:86%; /* 📏 largeur réduite */
-    background:#fff;
-    border-radius:14px;
-    box-shadow:0 4px 14px rgba(0,0,0,0.15);
-    padding:10px;
+  .phone {
+    width: 300px; /* largeur réaliste */
+    margin: auto;
+    background: #fff;
+    border-radius: 18px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+    padding: 16px;
   }
-  .display{
-    background:#f7f9fb;
-    border-radius:10px;
-    padding:8px;
-    text-align:center;
-    min-height:40px;
-    position:relative;
-    margin-bottom:8px;
+  .display {
+    background: #f7f9fb;
+    border-radius: 12px;
+    padding: 12px;
+    text-align: center;
+    min-height: 60px;
+    position: relative;
   }
-  .typed{font-size:16px;font-weight:700;letter-spacing:2px}
-  .error-banner{display:none;color:#c92a2a;font-weight:700;margin-top:4px;font-size:12px}
-  .keypad{
-    display:grid;
-    grid-template-columns:repeat(3,1fr);
-    gap:6px;
-    margin-top:6px;
+  .typed {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: 2px;
   }
-  .key{
-    background:#fff;
-    border-radius:8px;
-    padding:8px 0;
-    text-align:center;
-    font-size:14px;
-    font-weight:700;
-    cursor:pointer;
-    box-shadow:0 2px 4px rgba(0,0,0,0.05);
+  .error-banner {
+    display: none;
+    color: #c92a2a;
+    font-weight: 700;
+    margin-top: 6px;
   }
-  .controls{
-    display:flex;
-    gap:4px;
-    margin-top:8px;
+  .keypad {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-top: 12px;
   }
-  .btn{
-    flex:1;
-    padding:6px;
-    border-radius:8px;
-    border:0;
-    cursor:pointer;
-    font-size:11px;
-    font-weight:700;
+  .key {
+    background: #fff;
+    border-radius: 12px;
+    padding: 14px 0;
+    text-align: center;
+    font-size: 18px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.06);
   }
-  .btn.call{background:#10b981;color:#fff}
-  .btn.back{background:#f1f1f1}
-  .btn.clear{background:#ef4444;color:#fff}
-  /* overlay */
-  .overlay{
-    position:fixed; inset:0;
+  .controls {
+    display: flex;
+    gap: 10px;
+    margin-top: 12px;
+  }
+  .btn {
+    flex: 1;
+    padding: 10px;
+    border-radius: 12px;
+    border: 0;
+    cursor: pointer;
+    font-weight: 700;
+  }
+  .btn.call {background:#10b981;color:white}
+  .btn.back {background:#ddd}
+  .btn.clear{background:#ff3b30;color:white}
+
+  /* Overlay répondeur */
+  .overlay {
+    position: fixed;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,0.4);
+  }
+  .voicemail {
+    width: 260px;
+    background: white;
+    border-radius: 14px;
+    padding: 18px;
+    text-align: center;
+    box-shadow: 0 18px 40px rgba(0,0,0,0.25);
+  }
+  .voicemail h2 {margin:0 0 8px;font-size:18px}
+  .voicemail p {margin:0 0 12px;color:#555}
+  .code-display {font-size:20px;letter-spacing:6px;font-weight:700;margin-bottom:10px}
+  .pad {display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:10px}
+  .vm-key {
+    width:52px;height:44px;border-radius:8px;
+    background:#f2f4f8;display:flex;align-items:center;justify-content:center;
+    font-weight:800;cursor:pointer;
+  }
+  .vm-actions {display:flex;gap:10px;margin-top:8px}
+  .vm-actions button {
+    flex:1;padding:10px;border-radius:10px;border:0;font-weight:700;cursor:pointer
+  }
+  .vm-actions .ok {background:#007aff;color:white}
+  .vm-actions .cancel {background:#eee}
+  .error {color:#c92a2a;margin-top:8px;display:none}
+  .success {color:#15803d;margin-top:8px;display:none}
+  #accessBtn {
     display:none;
-    justify-content:center; align-items:center;
-    background:rgba(0,0,0,0.4);
-  }
-  .voicemail{
-    background:#fff;
+    margin-top:12px;
+    background:#10b981;
+    color:white;
+    padding:10px;
     border-radius:10px;
-    padding:12px;
-    width:180px;
-    text-align:center;
-  }
-  .voicemail h3{margin:0 0 6px 0;font-size:14px}
-  .voicemail p{margin:0 0 8px 0;font-size:12px;color:#555}
-  .code-display{font-size:16px;font-weight:800;margin:6px 0}
-  .pad{
-    display:grid;
-    grid-template-columns:repeat(3,1fr);
-    gap:6px;
-    justify-items:center;
-  }
-  .vm-key{
-    width:38px;height:32px;
-    background:#f2f4f8;
-    border-radius:6px;
-    display:flex;align-items:center;justify-content:center;
-    cursor:pointer;font-weight:700;font-size:14px;
-  }
-  .vm-actions{margin-top:8px;display:flex;gap:6px}
-  .vm-actions button{
-    flex:1;padding:6px;border-radius:6px;border:0;
-    font-size:11px;font-weight:700;cursor:pointer
-  }
-  .ok{background:#007aff;color:#fff}
-  .cancel{background:#ddd}
-  .error{color:#c92a2a;font-size:12px;display:none;margin-top:6px}
-  .success{color:#15803d;font-size:12px;display:none;margin-top:6px}
-  #openLink{
-    display:none;margin-top:8px;font-size:12px;
-    color:#007aff;font-weight:bold;text-decoration:none;
+    text-decoration:none;
+    font-weight:700;
+    display:inline-block;
   }
 </style>
 </head>
@@ -113,8 +123,9 @@
   <div class="phone">
     <div class="display">
       <div class="typed" id="typedNumber"></div>
-      <div class="error-banner" id="numError">Numéro inconnu</div>
+      <div class="error-banner" id="numError">Erreur — numéro inconnu</div>
     </div>
+
     <div class="keypad" id="keypad">
       <div class="key" data-key="1">1</div>
       <div class="key" data-key="2">2</div>
@@ -127,18 +138,20 @@
       <div class="key" data-key="9">9</div>
       <div class="key" data-key="0">0</div>
     </div>
+
     <div class="controls">
-      <button class="btn back" id="backBtn">←</button>
-      <button class="btn call" id="callBtn">Appeler</button>
-      <button class="btn clear" id="clearBtn">C</button>
+      <button class="btn back" id="backBtn" type="button">← Effacer</button>
+      <button class="btn call" id="callBtn" type="button">Appeler</button>
+      <button class="btn clear" id="clearBtn" type="button">Effacer tout</button>
     </div>
   </div>
 
+  <!-- Overlay répondeur -->
   <div class="overlay" id="overlay">
     <div class="voicemail">
-      <h3>Répondeur</h3>
-      <p>Entrez le code secret</p>
-      <div class="code-display" id="codeDisplay">••••</div>
+      <h2>Répondeur automatique</h2>
+      <p>Entrez le code secret (4 chiffres)</p>
+      <div class="code-display" id="codeDisplay">----</div>
       <div class="pad" id="vmPad">
         <div class="vm-key" data-key="1">1</div>
         <div class="vm-key" data-key="2">2</div>
@@ -152,92 +165,92 @@
         <div class="vm-key" data-key="0">0</div>
       </div>
       <div class="vm-actions">
-        <!-- ✅ type="button" pour éviter le rechargement -->
         <button type="button" class="ok" id="vmOk">Valider</button>
         <button type="button" class="cancel" id="vmCancel">Raccrocher</button>
       </div>
-      <div class="error" id="vmError">Code incorrect</div>
-      <div class="success" id="vmSuccess">Accès autorisé</div>
-      <a id="openLink" href="https://sites.google.com/" target="_blank">Accéder au dossier</a>
+      <div class="error" id="vmError">Code incorrect.</div>
+      <div class="success" id="vmSuccess">Code correct.</div>
+      <a href="https://sites.google.com/" id="accessBtn">Accéder au dossier</a>
     </div>
   </div>
 
 <script>
 (function(){
   const TARGET_PHONE = '0755221314'; // numéro attendu
-  const CORRECT = '1798';            // code secret
-
+  const CORRECT = '1798'; // code secret
   const typedEl = document.getElementById('typedNumber');
+  const numError = document.getElementById('numError');
   const keypad = document.getElementById('keypad');
   const backBtn = document.getElementById('backBtn');
   const clearBtn = document.getElementById('clearBtn');
   const callBtn = document.getElementById('callBtn');
   const overlay = document.getElementById('overlay');
-  const codeDisplay = document.getElementById('codeDisplay');
   const vmPad = document.getElementById('vmPad');
   const vmOk = document.getElementById('vmOk');
   const vmCancel = document.getElementById('vmCancel');
+  const codeDisplay = document.getElementById('codeDisplay');
   const vmError = document.getElementById('vmError');
   const vmSuccess = document.getElementById('vmSuccess');
-  const openLink = document.getElementById('openLink');
-  const numError = document.getElementById('numError');
+  const accessBtn = document.getElementById('accessBtn');
 
   let typed = '';
   let vmCode = '';
 
-  function renderTyped(){ typedEl.textContent = typed; }
-  function updateCodeDisplay(){
-    codeDisplay.textContent = vmCode.padEnd(4,'•').split('').map(c => c==='•'?'•':'●').join(' ');
-  }
+  function renderTyped(){ typedEl.textContent = typed || ''; }
 
   keypad.addEventListener('click', e=>{
-    const k = e.target.closest('.key'); if(!k) return;
-    typed += k.dataset.key; renderTyped();
+    const k = e.target.closest('.key');
+    if(!k) return;
+    typed += k.dataset.key;
+    renderTyped();
   });
 
   backBtn.addEventListener('click', ()=>{ typed = typed.slice(0,-1); renderTyped(); });
   clearBtn.addEventListener('click', ()=>{ typed = ''; renderTyped(); });
 
   callBtn.addEventListener('click', ()=>{
-    const normalized = typed.replace(/\D/g,'');
-    const targetNorm = TARGET_PHONE.replace(/\D/g,'');
-    if(normalized === targetNorm){
+    if(typed === TARGET_PHONE){
+      overlay.style.display = 'flex';
       vmCode = '';
-      updateCodeDisplay();
+      updateCode();
       vmError.style.display = 'none';
       vmSuccess.style.display = 'none';
-      openLink.style.display = 'none';
-      overlay.style.display = 'flex';
+      accessBtn.style.display = 'none';
     } else {
       numError.style.display = 'block';
-      setTimeout(()=>numError.style.display='none',2000);
+      setTimeout(()=> numError.style.display='none',2000);
     }
   });
 
   vmPad.addEventListener('click', e=>{
-    const k = e.target.closest('.vm-key'); if(!k) return;
-    if(vmCode.length < 4){ vmCode += k.dataset.key; updateCodeDisplay(); }
-  });
-
-  vmOk.addEventListener('click', e=>{
-    e.preventDefault(); // ✅ empêche toute action par défaut
-    if(vmCode === CORRECT){
-      vmError.style.display = 'none';
-      vmSuccess.style.display = 'block';
-      openLink.style.display = 'block';
-    } else {
-      vmError.style.display = 'block';
-      vmSuccess.style.display = 'none';
-      openLink.style.display = 'none';
-      vmCode = '';
-      updateCodeDisplay();
+    const k = e.target.closest('.vm-key');
+    if(!k) return;
+    if(vmCode.length<4){
+      vmCode += k.dataset.key;
+      updateCode();
     }
   });
 
-  vmCancel.addEventListener('click', ()=> overlay.style.display='none');
+  function updateCode(){
+    codeDisplay.textContent = vmCode.padEnd(4,'-');
+  }
 
-  renderTyped();
-  updateCodeDisplay();
+  vmOk.addEventListener('click', (e)=>{
+    e.preventDefault(); // empêche le rechargement
+    if(vmCode === CORRECT){
+      vmError.style.display = 'none';
+      vmSuccess.style.display = 'block';
+      accessBtn.style.display = 'inline-block';
+    } else {
+      vmError.style.display = 'block';
+      vmSuccess.style.display = 'none';
+      vmCode = '';
+      updateCode();
+    }
+  });
+
+  vmCancel.addEventListener('click', ()=>{ overlay.style.display = 'none'; });
+
 })();
 </script>
 </body>
