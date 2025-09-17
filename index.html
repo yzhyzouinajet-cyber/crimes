@@ -3,136 +3,41 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Faux téléphone — simulation d'appel</title>
+<title>Téléphone factice</title>
 <style>
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial;
-    background: #eef4fb;
-    margin: 0;
-    padding: 20px;
-    color: #111;
-    display:flex;
-    justify-content:center;
-    align-items:flex-start;
-    min-height:100vh;
-  }
-  .phone {
-    width: 300px; /* largeur réaliste */
-    margin-top:30px;
-    background: #fff;
-    border-radius: 18px;
-    box-shadow: 0 6px 18px rgba(0,0,0,0.15);
-    padding: 16px;
-  }
-  .display {
-    background: #f7f9fb;
-    border-radius: 12px;
-    padding: 12px;
-    text-align: center;
-    min-height: 60px;
-    position: relative;
-  }
-  .typed {
-    font-size: 22px;
-    font-weight: 700;
-    letter-spacing: 2px;
-  }
-  .error-banner {
-    display: none;
-    color: #c92a2a;
-    font-weight: 700;
-    margin-top: 6px;
-  }
-  .keypad {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
-    margin-top: 12px;
-  }
-  .key {
-    background: #fff;
-    border-radius: 12px;
-    padding: 14px 0;
-    text-align: center;
-    font-size: 18px;
-    font-weight: 700;
-    cursor: pointer;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.06);
-    user-select:none;
-  }
-  .controls {
-    display: flex;
-    gap: 10px;
-    margin-top: 12px;
-  }
-  .btn {
-    flex: 1;
-    padding: 10px;
-    border-radius: 12px;
-    border: 0;
-    cursor: pointer;
-    font-weight: 700;
-  }
-  .btn.call {background:#10b981;color:white}
-  .btn.back {background:#ddd}
+  body{font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Arial;background:#eef4fb;margin:0;padding:20px;color:#111}
+  .phone{width:300px;margin:auto;background:#fff;border-radius:18px;box-shadow:0 6px 18px rgba(0,0,0,0.15);padding:14px}
+  .display{background:#f7f9fb;border-radius:12px;padding:12px;text-align:center;min-height:60px;position:relative}
+  .typed{font-size:22px;font-weight:700;letter-spacing:2px}
+  .error-banner{display:none;color:#c92a2a;font-weight:700;margin-top:6px}
+  .keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}
+  .key{background:#fff;border-radius:12px;padding:14px 0;text-align:center;font-size:18px;font-weight:700;cursor:pointer;box-shadow:0 4px 8px rgba(0,0,0,0.06)}
+  .controls{display:flex;gap:10px;margin-top:12px}
+  .btn{flex:1;padding:10px;border-radius:12px;font-weight:700;cursor:pointer;border:0}
+  .btn.call{background:#10b981;color:white}
+  .btn.back{background:#ddd}
   .btn.clear{background:#ff3b30;color:white}
-
-  /* Overlay répondeur */
-  .overlay {
-    position: fixed;
-    inset: 0;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    background: rgba(0,0,0,0.4);
-    z-index: 9999;
-  }
-  .voicemail {
-    width: 280px;
-    background: white;
-    border-radius: 14px;
-    padding: 18px;
-    text-align: center;
-    box-shadow: 0 18px 40px rgba(0,0,0,0.25);
-  }
-  .voicemail h2 {margin:0 0 8px;font-size:18px}
-  .voicemail p {margin:0 0 12px;color:#555}
-  .code-display {font-size:20px;letter-spacing:6px;font-weight:700;margin-bottom:10px}
-  .pad {display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:10px}
-  .vm-key {
-    width:52px;height:44px;border-radius:8px;
-    background:#f2f4f8;display:flex;align-items:center;justify-content:center;
-    font-weight:800;cursor:pointer;user-select:none;
-  }
-  .vm-actions {display:flex;gap:10px;margin-top:8px}
-  .vm-actions button {
-    flex:1;padding:10px;border-radius:10px;border:0;font-weight:700;cursor:pointer
-  }
-  .vm-actions .ok {background:#007aff;color:white}
-  .vm-actions .cancel {background:#eee}
-  .error {color:#c92a2a;margin-top:8px;display:none}
-  .success {color:#15803d;margin-top:8px;display:none}
-  #accessBtn {
-    display:none;
-    margin-top:12px;
-    background:#10b981;
-    color:white;
-    padding:10px 14px;
-    border-radius:10px;
-    text-decoration:none;
-    font-weight:700;
-    display:inline-block;
-  }
+  .overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);display:none;align-items:center;justify-content:center}
+  .voicemail{background:#fff;padding:20px;border-radius:14px;text-align:center;width:280px;box-shadow:0 6px 18px rgba(0,0,0,0.25)}
+  .code-display{font-size:22px;letter-spacing:6px;margin:12px 0;font-weight:700}
+  .vm-keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:12px 0}
+  .vm-key{background:#f0f0f0;padding:12px;border-radius:8px;font-weight:700;cursor:pointer}
+  .vm-actions{display:flex;gap:10px;margin-top:10px}
+  .vm-actions button{flex:1;padding:10px;border-radius:10px;cursor:pointer;font-weight:700}
+  .ok{background:#007aff;color:white}
+  .cancel{background:#ddd}
+  #accessBtn{display:none;margin-top:12px;display:inline-block;background:#007aff;color:#fff;padding:10px 14px;border-radius:10px;text-decoration:none;font-weight:700}
+  .error{color:#c92a2a;display:none;margin-top:8px}
+  .success{color:#15803d;display:none;margin-top:8px}
 </style>
 </head>
 <body>
-  <div class="phone" role="application" aria-label="Téléphone factice">
-    <div class="display" aria-live="polite">
-      <div class="typed" id="typedNumber" aria-atomic="true"></div>
-      <div class="error-banner" id="numError" role="status">Erreur — numéro inconnu</div>
+  <div class="phone">
+    <div class="display">
+      <div class="typed" id="typedNumber"></div>
+      <div class="error-banner" id="numError">Erreur — numéro inconnu</div>
     </div>
-
-    <div class="keypad" id="keypad" role="group" aria-label="Clavier téléphonique">
+    <div class="keypad" id="keypad">
       <div class="key" data-key="1">1</div>
       <div class="key" data-key="2">2</div>
       <div class="key" data-key="3">3</div>
@@ -144,21 +49,20 @@
       <div class="key" data-key="9">9</div>
       <div class="key" data-key="0">0</div>
     </div>
-
-    <div class="controls" role="toolbar" aria-label="Contrôles">
-      <button class="btn back" id="backBtn" type="button" aria-label="Effacer">← Effacer</button>
-      <button class="btn call" id="callBtn" type="button" aria-label="Appeler">Appeler</button>
-      <button class="btn clear" id="clearBtn" type="button" aria-label="Effacer tout">Effacer tout</button>
+    <div class="controls">
+      <button class="btn back" id="backBtn">← Effacer</button>
+      <button class="btn call" id="callBtn">Appeler</button>
+      <button class="btn clear" id="clearBtn">Tout effacer</button>
     </div>
   </div>
 
-  <!-- Overlay répondeur -->
-  <div class="overlay" id="overlay" role="dialog" aria-modal="true" aria-hidden="true">
-    <div class="voicemail" role="document">
-      <h2>Répondeur automatique</h2>
-      <p>Entrez le code secret (4 chiffres)</p>
-      <div class="code-display" id="codeDisplay">----</div>
-      <div class="pad" id="vmPad" role="group" aria-label="Clavier du répondeur">
+  <!-- Répondeur -->
+  <div class="overlay" id="overlay">
+    <div class="voicemail">
+      <h2>Répondeur</h2>
+      <p>Saisissez le code secret :</p>
+      <div class="code-display" id="codeDisplay">• • • •</div>
+      <div class="vm-keypad" id="vmPad">
         <div class="vm-key" data-key="1">1</div>
         <div class="vm-key" data-key="2">2</div>
         <div class="vm-key" data-key="3">3</div>
@@ -171,119 +75,100 @@
         <div class="vm-key" data-key="0">0</div>
       </div>
       <div class="vm-actions">
-        <button type="button" class="ok" id="vmOk">Valider</button>
-        <button type="button" class="cancel" id="vmCancel">Raccrocher</button>
+        <button class="ok" id="vmOk" type="button">Valider</button>
+        <button class="cancel" id="vmCancel" type="button">Raccrocher</button>
       </div>
-      <div class="error" id="vmError" role="status">Code incorrect.</div>
-      <div class="success" id="vmSuccess" role="status">Code correct.</div>
-
-      <!-- === TON LIEN PUBLIÉ (remplacé avec ton URL) === -->
-      <a href="https://sites.google.com/view/scenesdecrimes/accueil/coffre-num%C3%A9rique/pieces-a-conviction-n1" id="accessBtn" target="_blank" rel="noopener noreferrer">Accéder au dossier</a>
+      <div class="error" id="vmError">Code incorrect</div>
+      <div class="success" id="vmSuccess">Code correct</div>
+      <a href="https://sites.google.com/view/scenesdecrimes/accueil/coffre-num%C3%A9rique/telephone" target="_blank" id="accessBtn">Accéder au dossier</a>
     </div>
   </div>
 
 <script>
 (function(){
-  const TARGET_PHONE = '0755221314'; // numéro attendu
-  const CORRECT = '1798'; // code secret
+  const TARGET_PHONE = "0755221314"; // numéro attendu
+  const CORRECT_CODE = "1798";       // code secret
+  let typed = "";
+  let vmCode = "";
 
-  const typedEl = document.getElementById('typedNumber');
-  const numError = document.getElementById('numError');
-  const keypad = document.getElementById('keypad');
-  const backBtn = document.getElementById('backBtn');
-  const clearBtn = document.getElementById('clearBtn');
-  const callBtn = document.getElementById('callBtn');
-  const overlay = document.getElementById('overlay');
-  const vmPad = document.getElementById('vmPad');
-  const vmOk = document.getElementById('vmOk');
-  const vmCancel = document.getElementById('vmCancel');
-  const codeDisplay = document.getElementById('codeDisplay');
-  const vmError = document.getElementById('vmError');
-  const vmSuccess = document.getElementById('vmSuccess');
-  const accessBtn = document.getElementById('accessBtn');
+  const typedEl = document.getElementById("typedNumber");
+  const numError = document.getElementById("numError");
+  const overlay = document.getElementById("overlay");
+  const codeDisplay = document.getElementById("codeDisplay");
+  const vmError = document.getElementById("vmError");
+  const vmSuccess = document.getElementById("vmSuccess");
+  const accessBtn = document.getElementById("accessBtn");
 
-  let typed = '';
-  let vmCode = '';
-
-  function renderTyped(){ typedEl.textContent = typed || ''; }
-
-  keypad.addEventListener('click', e=>{
-    const k = e.target.closest('.key');
+  // taper numéro
+  document.getElementById("keypad").addEventListener("click", e=>{
+    const k = e.target.closest(".key");
     if(!k) return;
     typed += k.dataset.key;
-    renderTyped();
+    typedEl.textContent = typed;
   });
 
-  backBtn.addEventListener('click', ()=>{ typed = typed.slice(0,-1); renderTyped(); });
-  clearBtn.addEventListener('click', ()=>{ typed = ''; renderTyped(); });
+  // effacer un chiffre
+  document.getElementById("backBtn").addEventListener("click", ()=>{
+    typed = typed.slice(0,-1);
+    typedEl.textContent = typed;
+  });
 
-  callBtn.addEventListener('click', ()=>{
-    const normalized = typed.replace(/\D/g,'');
-    const targetNorm = TARGET_PHONE.replace(/\D/g,'');
-    if(normalized === targetNorm && normalized.length>0){
-      overlay.style.display = 'flex';
-      overlay.setAttribute('aria-hidden','false');
-      vmCode = '';
-      updateCode();
-      vmError.style.display = 'none';
-      vmSuccess.style.display = 'none';
-      accessBtn.style.display = 'none';
-      // focus trap simple: listen for keys to feed vm while overlay is open
+  // effacer tout
+  document.getElementById("clearBtn").addEventListener("click", ()=>{
+    typed = "";
+    typedEl.textContent = "";
+  });
+
+  // appeler
+  document.getElementById("callBtn").addEventListener("click", ()=>{
+    if(typed === TARGET_PHONE){
+      overlay.style.display = "flex";
+      vmCode = "";
+      updateCodeDisplay();
+      vmError.style.display="none";
+      vmSuccess.style.display="none";
+      accessBtn.style.display="none";
     } else {
-      numError.style.display = 'block';
-      setTimeout(()=> numError.style.display='none',2000);
+      numError.style.display = "block";
+      setTimeout(()=> numError.style.display="none",2000);
     }
   });
 
-  vmPad.addEventListener('click', e=>{
-    const k = e.target.closest('.vm-key');
+  // clavier code secret
+  document.getElementById("vmPad").addEventListener("click", e=>{
+    const k = e.target.closest(".vm-key");
     if(!k) return;
     if(vmCode.length<4){
       vmCode += k.dataset.key;
-      updateCode();
+      updateCodeDisplay();
     }
   });
 
-  function updateCode(){
-    // affiche traits s'il n'y a pas de chiffres
-    codeDisplay.textContent = vmCode.padEnd(4,'-');
+  function updateCodeDisplay(){
+    let out = vmCode.padEnd(4,"•").split("").join(" ");
+    codeDisplay.textContent = out;
   }
 
-  vmOk.addEventListener('click', (e)=>{
-    e.preventDefault(); // empêche rechargement
-    if(vmCode === CORRECT){
-      vmError.style.display = 'none';
-      vmSuccess.style.display = 'block';
-      accessBtn.style.display = 'inline-block';
+  // Valider code
+  document.getElementById("vmOk").addEventListener("click", e=>{
+    e.preventDefault();
+    if(vmCode === CORRECT_CODE){
+      vmError.style.display="none";
+      vmSuccess.style.display="block";
+      accessBtn.style.display="inline-block";
     } else {
-      vmError.style.display = 'block';
-      vmSuccess.style.display = 'none';
-      accessBtn.style.display = 'none';
-      vmCode = '';
-      updateCode();
+      vmError.style.display="block";
+      vmSuccess.style.display="none";
+      vmCode = "";
+      updateCodeDisplay();
     }
   });
 
-  vmCancel.addEventListener('click', ()=>{ overlay.style.display = 'none'; overlay.setAttribute('aria-hidden','true'); });
-
-  // support clavier général (taper chiffres pour composer / pour le VM quand overlay visible)
-  document.addEventListener('keydown', (e) => {
-    if(overlay.style.display === 'flex'){
-      if(e.key >= '0' && e.key <= '9'){ if(vmCode.length < 4){ vmCode += e.key; updateCode(); } }
-      else if(e.key === 'Backspace'){ vmCode = vmCode.slice(0,-1); updateCode(); }
-      else if(e.key === 'Enter'){ vmOk.click(); }
-      else if(e.key === 'Escape'){ vmCancel.click(); }
-      e.preventDefault();
-    } else {
-      if(e.key >= '0' && e.key <= '9'){ typed += e.key; renderTyped(); e.preventDefault(); }
-      else if(e.key === 'Backspace'){ typed = typed.slice(0,-1); renderTyped(); e.preventDefault(); }
-      else if(e.key === 'Enter'){ callBtn.click(); e.preventDefault(); }
-    }
+  // Raccrocher
+  document.getElementById("vmCancel").addEventListener("click", ()=>{
+    overlay.style.display = "none";
+    vmCode = "";
   });
-
-  // initial render
-  renderTyped();
-  updateCode();
 })();
 </script>
 </body>
